@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
+	"net/http"
 	"reflect"
 )
 
@@ -73,4 +75,20 @@ func (methodsMap *MethodsMap) Call(methodName, req string) (string, error) {
 	}
 	callErr := out[1].Interface().(error)
 	return string(jsonstr), callErr
+}
+
+func (methodsMap *MethodsMap) RegisteHttpRouter(router *httprouter.Router) {
+	for k, _ := range methodsMap.funcMap {
+		methodName := k
+		router.POST(fmt.Sprintf("/grpc/%s", k), func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+			rspStr, err := methodsMap.Call(methodName, "req")
+			if err != nil {
+				w.WriteHeader(404)
+				return
+			}
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(200)
+			w.Write([]byte(rspStr))
+		})
+	}
 }
