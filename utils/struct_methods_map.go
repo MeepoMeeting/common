@@ -77,10 +77,10 @@ func (methodsMap *MethodsMap) Call(methodName, req string) (string, error) {
 	return string(jsonstr), callErr
 }
 
-func (methodsMap *MethodsMap) RegisteHttpRouter(router *httprouter.Router) {
+func (methodsMap *MethodsMap) RegisteHttpRouter(router *httprouter.Router, basePath string) {
 	for k, _ := range methodsMap.funcMap {
 		methodName := k
-		router.POST(fmt.Sprintf("/grpc/%s", k), func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		router.POST(fmt.Sprintf("%s/%s", basePath, k), func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 			rspStr, err := methodsMap.Call(methodName, "req")
 			if err != nil {
 				w.WriteHeader(404)
