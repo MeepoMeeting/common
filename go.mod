@@ -1,4 +1,4 @@
-module common
+module github.com/MeepoMeeting/common
 
 go 1.15
 
