@@ -87,14 +87,14 @@ func (methodsMap *MethodsMap) RegisteHttpRouter(router *httprouter.Router, baseP
 			reqStr := string(reqbyte)
 			rspStr, err := methodsMap.Call(methodName, reqStr)
 			if err != nil {
-				log.Printf("http call error|method:%v|req:%v|rsp:%v|error:%v\n", methodName, reqStr, rspStr, err)
+				log.Printf("http call error|method:%v|error:%v\n", methodName, err)
 				w.WriteHeader(404)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(200)
 			w.Write([]byte(rspStr))
-			log.Printf("http call success|method:%v|req:%v|rsp:%v|error:%v\n", methodName, reqStr, rspStr, err)
+			log.Printf("http call success|method:%v\n", methodName)
 
 		})
 	}
