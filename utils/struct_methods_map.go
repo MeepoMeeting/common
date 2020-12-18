@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"reflect"
 )
@@ -80,15 +82,19 @@ func (methodsMap *MethodsMap) Call(methodName, req string) (string, error) {
 func (methodsMap *MethodsMap) RegisteHttpRouter(router *httprouter.Router, basePath string) {
 	for k, _ := range methodsMap.funcMap {
 		methodName := k
-		router.POST(fmt.Sprintf("%s/%s", basePath, k), func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-			rspStr, err := methodsMap.Call(methodName, "req")
+		router.POST(fmt.Sprintf("%s/%s", basePath, methodName), func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+			reqStr, _ := ioutil.ReadAll(r.Body)
+			rspStr, err := methodsMap.Call(methodName, string(reqStr))
 			if err != nil {
+				log.Printf("http call error|method:%v|req:%v|rsp:%v|error:%v", methodName, reqStr, rspStr, err)
 				w.WriteHeader(404)
 				return
 			}
-			w.Header().Add("Content-Type", "application/json")
+			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(200)
 			w.Write([]byte(rspStr))
+			log.Printf("http call success|method:%v|req:%v|rsp:%v|error:%v", methodName, reqStr, rspStr, err)
+
 		})
 	}
 }
